@@ -9,7 +9,7 @@
 #include <unordered_set>
 #include <vector>
 
-constexpr int PRINT_DEBUG = 0;
+constexpr int PRINT_DEBUG = 1;
 
 #define prs_printf(...) \
         if constexpr (PRINT_DEBUG) \
@@ -44,11 +44,12 @@ std::optional<Match> classify(const std::string & line)
                 "^[[:space:]]*(dust|torch|repeater|clock|comparator)[[:space:]]"
                 "+([[:alnum:]_]+)[[:space:]]*;[[:space:]]*$",
                 std::regex::extended);
-        static const std::regex module_inst(
-                "^[[:space:]]*(dust|torch|repeater|clock|comparator)[[:space:]]"
-                "+([[:alnum:]_]+)[[:space:]]*\\(([^)]*)\\)[[:space:]]*;[[:"
-                "space:]]*$",
-                std::regex::extended);
+//         static const std::regex module_inst(
+//                 R"(^[[:space:]]*([a-zA-Z_][a-zA-Z_0-9]*)[[:space:]]+([a-zA-Z_][a-zA-Z_0-9]*)[[:space:]]*\(([[:space:]]*[a-zA-Z_][a-zA-Z_0-9]*[[:space:]]*(,[[:space:]]*[a-zA-Z_][a-zA-Z_0-9]*[[:space:]]*)*)?\)[[:space:]]*;[[:space:]]*$)",
+//                 std::regex::extended);
+// 
+        static const std::regex module_inst(R"(^[[:space:]]*([a-zA-Z_][a-zA-Z_0-9]*)[[:space:]]+([a-zA-Z_][a-zA-Z_0-9]*)[[:space:]]*\(([[:space:]]*[a-zA-Z_][a-zA-Z_0-9]*(\.[a-zA-Z_][a-zA-Z_0-9]*)?[[:space:]]*(,[[:space:]]*[a-zA-Z_][a-zA-Z_0-9]*(\.[a-zA-Z_][a-zA-Z_0-9]*)?[[:space:]]*)*)?\)[[:space:]]*;[[:space:]]*$)", std::regex::extended);
+
         static const std::regex assignment(
                 "^[[:space:]]*([[:alnum:]_]+)[[:space:]]*=[[:space:]]*([[:"
                 "alnum:]_\\.]+)[[:space:]]*;[[:space:]]*$",
@@ -241,7 +242,11 @@ void process_module_instantiation(std::smatch s)
 {
         ASSERT_IN_MODULE;
 
-        assert(false && "FUCK");
+        module_state.components.push_back({
+                .name = s[2],
+                .type = s[1],
+                .prerequisites = parse_list(s[3]),
+        });
 }
 
 void process_assignment(std::smatch s)
@@ -354,6 +359,37 @@ bool is_sigil_type(const std::string & s)
                 || s == "comparator<subtract>";
 }
 
+struct split_name
+{
+        std::string name;
+        std::optional<std::string> field;
+};
+split_name splitQualifiedName(const std::string& input) {
+    size_t dotPos = input.find('.');
+    if (dotPos == std::string::npos) {
+            return { .name = input, .field = std::nullopt, };
+    }
+    return {
+        .name = input.substr(0, dotPos),
+        .field = input.substr(dotPos + 1)
+    };
+}
+
+void emit_prereq_smart(const std::string & prereq)
+{
+        split_name split = splitQualifiedName(prereq);
+        if (!split.field)
+        {
+                std::cout << prereq;
+                return;
+        }
+
+        std::cout << "std::make_shared<sigil::QueryableFn>(";
+        std::cout << "[" << split.name << "](int timestamp) { return (*" << split.name;
+        std::cout << ")(timestamp)." << split.field.value() << "; })";
+
+}
+
 void emit_components()
 {
         for (const Component & c : module_state.components)
@@ -370,7 +406,7 @@ void emit_components()
                 {
                         if (comma)
                                 std::cout << ", ";
-                        std::cout << prereq;
+                        emit_prereq_smart(prereq);
                         comma = true;
                 }
                 if (c.type == "torch" || c.type == "dust")
@@ -382,9 +418,21 @@ void emit_components()
 void emit_return()
 {
         std::unordered_set<std::string> return_prereqs;
+        std::unordered_map<std::string, std::string> prereq_fields;
+
         for (const auto & [_, ret_p] : module_state.named_outputs_and_sources)
                 for (const std::string & s : ret_p)
-                        return_prereqs.insert(s);
+                {
+                        split_name split = splitQualifiedName(s);
+                        if (!split.field)
+                                return_prereqs.insert(s);
+                        else
+                        {
+                                return_prereqs.insert(split.name);
+                                prereq_fields[split.name] = split.field.value();
+                        }
+                }
+
         std::cout << "\treturn std::make_shared<module_"
                   << module_state.module_name << ">(\n"
                   << "\t\t[";
@@ -412,7 +460,13 @@ void emit_return()
                 {
                         if (write_or)
                                 std::cout << " || ";
-                        std::cout << "(*" << src << ")(timestamp)";
+
+                        split_name split = splitQualifiedName(src);
+                        std::cout << "(*" << split.name << ")(timestamp)";
+                        if (split.field)
+                        {
+                                std::cout << "." << split.field.value();
+                        }
                         write_or = true;
                 }
                 std::cout << ",\n";
@@ -523,9 +577,9 @@ void process_line(const std::string & line)
                         process_component_decl(m);
                         return;
                 case LineKind::ModuleInst:
-                        std::cout << "Module inst: type=" << m[1]
-                                  << " name=" << m[2] << " args=" << m[3]
-                                  << "\n";
+                        //std::cout << "Module inst: type=" << m[1]
+                        //          << " name=" << m[2] << " args=" << m[3]
+                        //          << "\n";
                         process_module_instantiation(m);
                         return;
                 case LineKind::Assignment:

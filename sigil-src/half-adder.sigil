@@ -1,0 +1,74 @@
+module and(left, right) -> result {
+    torch torch_l;
+    torch torch_r;
+
+    torch_l = left;
+    torch_r = right;
+
+    torch torch_c;
+    torch_c = torch_l;
+    torch_c = torch_r;
+
+    result = torch_c;
+}
+
+module xor(left, right) -> result {
+        torch torch_l;
+        torch torch_r;
+        dust nand_inputs;
+
+        torch_l = left;
+        torch_r = right;
+
+        nand_inputs = torch_l;
+        nand_inputs = torch_r;
+
+        torch torch_bottom_l;
+        torch torch_bottom_r;
+
+        torch_bottom_l = left;
+        torch_bottom_r = right;
+
+        torch center;
+
+        center = nand_inputs;
+        center = torch_bottom_l;
+        center = torch_bottom_r;
+        
+        dust dust_l;
+        dust dust_r;
+        
+        dust_l = center;
+        dust_l = torch_bottom_l;
+
+        dust_r = center;
+        dust_r = torch_bottom_r;
+
+        torch torch_final_l;
+        torch torch_final_r;
+
+        torch_final_l = dust_l;
+        torch_final_r = dust_r;
+
+        result = torch_final_l;
+        result = torch_final_r;
+}
+
+module half_adder(left, right) -> bit, carry {
+        xor x(left, right);
+        and a(left, right);
+        
+        bit = x.result;
+        carry = a.result;
+}
+
+$print(0, half_adder(1, 1).bit, 0);
+$print(0, half_adder(0, 1).bit, 0);
+$print(0, half_adder(1, 0).bit, 0);
+$print(0, half_adder(0, 0).bit, 0);
+
+$print(0, half_adder(1, 1).carry, 0);
+$print(0, half_adder(0, 1).carry, 0);
+$print(0, half_adder(1, 0).carry, 0);
+$print(0, half_adder(0, 0).carry, 0);
+
