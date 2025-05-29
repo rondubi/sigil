@@ -1,0 +1,52 @@
+module xor(left, right) -> result {
+        torch torch_l;
+        torch torch_r;
+        dust nand_inputs;
+
+        torch_l = left;
+        torch_r = right;
+
+        nand_inputs = torch_l;
+        nand_inputs = torch_r;
+
+        torch torch_bottom_l;
+        torch torch_bottom_r;
+
+        torch_bottom_l = left;
+        torch_bottom_r = right;
+
+        torch center;
+
+        center = nand_inputs;
+        center = torch_bottom_l;
+        center = torch_bottom_r;
+        
+        dust dust_l;
+        dust dust_r;
+        
+        dust_l = center;
+        dust_l = torch_bottom_l;
+
+        dust_r = center;
+        dust_r = torch_bottom_r;
+
+        torch torch_final_l;
+        torch torch_final_r;
+
+        torch_final_l = dust_l;
+        torch_final_r = dust_r;
+
+        result = torch_final_l;
+        result = torch_final_r;
+}
+
+$expect(0, xor(0, 0).result, 0);
+$expect(0, xor(0, 1).result, 1);
+$expect(0, xor(1, 0).result, 1);
+$expect(0, xor(1, 1).result, 0);
+
+$print(0, xor(0, 0).result, 0);
+$print(0, xor(0, 1).result, 0);
+$print(0, xor(1, 0).result, 0);
+$print(0, xor(1, 1).result, 0);
+

@@ -1,0 +1,23 @@
+prog := statement prog | $.
+statement := module_decl | system_task
+module_decl := kw_module identifier '(' ident_list ')'  '->' results_list module_body
+kw_module := "module"
+identifier := [a-zA-Z][a-zA-Z_]*
+ident_list := identifier [',' identifier]*
+results_list := kw_result | ident_list
+kw_result := 'result'
+module_body := '{' [module_body_stmt ';']* '}'
+module_body_stmt := component_decl | component_assignment | module_instantiation
+component_assignment := identifier '=' val_expr
+val_expr := identifier | instantiated_module_result_access
+instantiated_module_result_access := identifier '.' identifier
+component_decl := type identifier
+type := kw_dust | kw_torch | kw_repeater | kw_clock | kw_comparator
+kw_dust := 'dust'
+kw_torch := 'torch'
+kw_repeater := 'repeater<' [0-4] '>'
+kw_clock := 'clock<' [0-9]+ ',' [0-9]+ '>'
+kw_comparator := 'comparator<compare>' | 'comparator<subtract>'
+fn_arg_like := val_expr [',' val_expr]*
+module_instantiation := identifier identifier '(' fn_arg_like ')'
+system_task := '$' identifier '(' fn_arg_like ')' ';'

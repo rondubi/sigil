@@ -1,0 +1,24 @@
+module and(left, right) -> result {
+    torch torch_l;
+    torch torch_r;
+
+    torch_l = left;
+    torch_r = right;
+
+    torch torch_c;
+    torch_c = torch_l;
+    torch_c = torch_r;
+
+    result = torch_c;
+}
+
+$expect(0, and(1, 1).result, 1);
+$expect(0, and(0, 1).result, 0);
+$expect(0, and(1, 0).result, 0);
+$expect(0, and(0, 0).result, 0);
+
+$print(0, and(1, 1).result, 0);
+$print(0, and(0, 1).result, 0);
+$print(0, and(1, 0).result, 0);
+$print(0, and(0, 0).result, 0);
+

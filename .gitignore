@@ -1,0 +1,6 @@
+backend/build/*
+compile/*
+frontend/build/*
+
+.DS_Store
+
