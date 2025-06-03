@@ -97,7 +97,7 @@ This logically makes sense because a torch is basically
 So the defined circuit is the following:
 
 ```math
-\neg \biggr( \neg\text{left} \bigcup \neg text{right} \biggr)
+\neg \biggr( \neg\text{left} \bigcup \neg \text{right} \biggr)
 ```
 By DeMorgan's law, this is equivalent to a logical AND.
 
