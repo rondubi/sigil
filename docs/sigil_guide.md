@@ -66,6 +66,9 @@ These represent connecting one redstone component or module to another in sequen
 (this does mean that it doesn't model "back-flow" in redstone circuits;
 everything is assumed unidirectional).
 
+Because in Minecraft, redstone components effectively perform a logical union on their inputs,
+an assignment effectively adds to the union.
+
 ### System tasks
 
 Sigil currently supports exactly two system tasks.
@@ -82,4 +85,12 @@ These correspond to, on the level of Sigil,
 ## Example 0: a logical AND gate
 
 A logical AND gate can be represented as demonstrated in `sigil-src/and.sigil`.
+
+As you can see, it defines three torch components, `torch_l`, `torch_r`, and `torch_c`,
+then chains them to return the output.
+
+This logically makes sense because a torch is basically
+$$
+\bar{\biggr\cup_\text{inputs} i}
+$$
 
