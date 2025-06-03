@@ -94,3 +94,9 @@ This logically makes sense because a torch is basically
 \neg \biggr(\bigcup_{i \in \text{inputs}} i \biggr)
 ```
 
+So the defined circuit is the following:
+
+```math
+\neg \biggr( \bar{\text{left}} \bigcup \bar{\text{right}} \biggr)
+```
+
