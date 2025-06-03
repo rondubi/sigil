@@ -90,7 +90,5 @@ As you can see, it defines three torch components, `torch_l`, `torch_r`, and `to
 then chains them to return the output.
 
 This logically makes sense because a torch is basically
-$$
-\bar{\biggr\cup_\text{inputs} i}
-$$
+$$ \bar{\biggr\cup_\text{inputs} i} $$
 
