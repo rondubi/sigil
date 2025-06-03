@@ -91,6 +91,6 @@ then chains them to return the output.
 
 This logically makes sense because a torch is basically
 ```math
-\bar{(\bigcup_\text{inputs} i)}
+\neg \biggr(\bigcup_{i \in \text{inputs}} i \biggr)
 ```
 
