@@ -91,6 +91,6 @@ then chains them to return the output.
 
 This logically makes sense because a torch is basically
 ```math
-\bar{\biggr\cup_\text{inputs} i}
+\bar{\cup_\text{inputs} i}
 ```
 
