@@ -115,7 +115,18 @@ since we have `nand_inputs`, `torch_bottom_l`, and `torch_bottom_r` passed into 
 we have
 
 ```math
-\text{center} = \neg \biggr( \biggr[ \neg \text{left} \bigcup \neg \text{right} \biggr] \bigcup \neg \text{left} \bigcup \neg \text{right} \biggr) \\
+\text{center} = \neg \biggr( \biggr[ \neg \text{left} \bigcup \neg \text{right} \biggr] \bigcup \neg \text{left} \bigcup \neg \text{right} \biggr)
+
 = \neg \biggr[ \neg \text{left} \bigcup \neg \text{right} \biggr] \bigcap \text{left} \bigcap \text{right}
+
+= \text{left} \bigcap \text{right}
+```
+
+Given this, we have the `torch_final_l` and  `torch_final_r` components,
+which are as follows
+```math
+\text{torch_final_l} = \neg \biggr( \biggr[ \text{left} \bigcap \text{right} \biggr] \bigcup \neg \text{left} \biggr)
+
+= \neg \biggr[ \text{left} \bigcap \text{right} \biggr] \bigcap \text{left}
 ```
 
