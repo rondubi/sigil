@@ -1,0 +1,10 @@
+module repeater_wrapper_a(in) -> out {
+        repeater<1> r;
+        r = in;
+        out = r;
+}
+
+$expect(1, repeater_wrapper_a(1).out, 0);
+$expect(2, repeater_wrapper_a(1).out, 1);
+$expect(3, repeater_wrapper_a(1).out, 0);
+

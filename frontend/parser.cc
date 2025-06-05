@@ -550,8 +550,9 @@ void emit_task(const SysTask & task)
                 if (comma)
                         std::cout << ", ";
                 std::cout << "sigil::make_pulse_set({";
+                // NOTE: we allow a pulse of something at 0 for now
                 if (arg)
-                        std::cout << task.timestamp;
+                        std::cout << "0";
                 std::cout << "})";
                 comma = true;
         }
