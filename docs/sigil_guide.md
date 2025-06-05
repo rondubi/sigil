@@ -146,3 +146,15 @@ meaning
 
 This is basically the definition of a logical XOR, so we win.
 
+## Example 2: a half-adder
+
+Now that we have a XOR and an AND gate,
+we can build a half-adder, as described in `sigil-src/half-adder.sigil`.
+
+Since this is purely binary arithmetic on two bits,
+we know that the least significant bit is the XOR of the inputs, and that the carry is the AND of the inputs.
+
+## Example 3: a full-adder
+
+Now that we have a half-adder, you can try it for yourself and combined half-adders to form a full adder.
+
