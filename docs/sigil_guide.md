@@ -137,3 +137,12 @@ which are as follows
 = \biggr[ \neg \text{left} \bigcup \neg \text{right} \biggr] \bigcap \text{right}
 = \neg \text{left} \bigcap \text{right}
 ```
+
+These two components are combined by `result`,
+meaning
+```math
+\text{result} = \biggr[ \text{left} \bigcap \neg \text{right} \biggr] \bigcup \biggr[ \neg \text{left} \bigcap \text{right} \biggr]
+```
+
+This is basically the definition of a logical XOR, so we win.
+
