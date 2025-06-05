@@ -79,7 +79,7 @@ $print([timestamp], [module type]([integer arguments]).[output name], 0);
 
 These correspond to, on the level of Sigil,
 * Checking that the named module with the given signals inputted to it will, at the given timestamp, return the desired value in the desired output field
-* Printing what the named module with the given signals inputted to it will, at the given timestamp, return in the desired output field (the additional 0 at the end of `$print` is due to the limitations of my frontend
+* Printing what the named module with the given signals inputted to it will, at the given timestamp, return in the desired output field (the additional 0 at the end of `$print` is due to the limitations of my frontend)
 
 
 ## Example 0: a logical AND gate
@@ -115,6 +115,7 @@ since we have `nand_inputs`, `torch_bottom_l`, and `torch_bottom_r` passed into 
 we have
 
 ```math
-\text{center} = \neg \biggr( \biggr[ \neg \text{left} \bigcup \text{right} \biggr] \bicup \neg \text{left} \bigcup \neg \text{right} \biggr)
+\text{center} = \neg \biggr( \biggr[ \neg \text{left} \bigcup \neg \text{right} \biggr] \bigcup \neg \text{left} \bigcup \neg \text{right} \biggr) \\
+= \neg \biggr[ \neg \text{left} \bigcup \neg \text{right} \biggr] \bigcap \text{left} \bigcap \text{right}
 ```
 
