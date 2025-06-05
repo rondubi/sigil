@@ -66,19 +66,19 @@ module full_adder(l0, r0, c) -> o0, carry {
         half_adder h1(l0, r0);
         half_adder h2(h1.carry, c);
 
-        bit = h2.bit;
+        o0 = h2.bit;
         carry = h2.carry;
 }
 
-$print(0, full_adder(0, 0, 0).bit, 0);
-$print(0, full_adder(0, 0, 1).bit, 1);
-$print(0, full_adder(0, 1, 0).bit, 1);
-$print(0, full_adder(0, 1, 1).bit, 0);
+$print(0, full_adder(0, 0, 0).o0, 0);
+$print(0, full_adder(0, 0, 1).o0, 1);
+$print(0, full_adder(0, 1, 0).o0, 1);
+$print(0, full_adder(0, 1, 1).o0, 0);
 
-$print(0, full_adder(1, 0, 0).bit, 1);
-$print(0, full_adder(1, 0, 1).bit, 0);
-$print(0, full_adder(1, 1, 0).bit, 0);
-$print(0, full_adder(1, 1, 1).bit, 1);
+$print(0, full_adder(1, 0, 0).o0, 1);
+$print(0, full_adder(1, 0, 1).o0, 0);
+$print(0, full_adder(1, 1, 0).o0, 0);
+$print(0, full_adder(1, 1, 1).o0, 1);
 
 $print(0, full_adder(0, 0, 0).carry, 0);
 $print(0, full_adder(0, 0, 1).carry, 0);
