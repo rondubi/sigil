@@ -44,7 +44,7 @@ std::optional<Match> classify(const std::string & line)
                 std::regex::extended);
 
         static const std::regex component_decl(
-                "^[[:space:]]*(dust|torch|repeater|clock|comparator)[[:space:]]"
+                "^[[:space:]]*(dust|torch|repeater<[1-4]>|clock<[0-9]+[ ]*,[ ]*[0-9]+>|subtract_comparator|compare_comparator)[[:space:]]"
                 "+([[:alnum:]_]+)[[:space:]]*;[[:space:]]*$",
                 std::regex::extended);
 
@@ -374,8 +374,8 @@ bool is_sigil_type(const std::string & s)
         // TODO (clock support)
         return s == "torch" || s == "dust" || s == "repeater<1>"
                 || s == "repeater<2>" || s == "repeater<3>"
-                || s == "repeater<4>" || s == "comparator<compare>"
-                || s == "comparator<subtract>";
+                || s == "repeater<4>" || s == "subtract_comparator"
+                || s == "compare_comparator";
 }
 
 struct split_name
@@ -415,7 +415,7 @@ void emit_prereq_smart(const std::string & prereq)
 
 void emit_components()
 {
-        for (const Component & c : module_state.components)
+        for (Component & c : module_state.components)
         {
                 std::cout << "\tauto " << c.name << " = ";
                 // TODO: clock support
@@ -424,6 +424,14 @@ void emit_components()
                 std::cout << "make_" << c.type << "(";
                 if (c.type == "torch" || c.type == "dust")
                         std::cout << "{";
+
+                if (c.type == "subtract_comparator" || c.type == "compare_comparator")
+                {
+                        assert(c.prerequisites.size() <= 3 && "Comparators must have no more than three prerequisites");
+                        while (c.prerequisites.size() < 3)
+                                c.prerequisites.push_back("sigil::make_pulse_set({})");
+                }
+
                 bool comma = false;
                 for (const std::string & prereq : c.prerequisites)
                 {

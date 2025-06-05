@@ -1,0 +1,37 @@
+module comparator_wrapper(in) -> out {
+        compare_comparator c;
+        c = in;
+        out = c;
+}
+
+$expect(0, comparator_wrapper(0).out, 0);
+$expect(0, comparator_wrapper(1).out, 0);
+
+module fancier_comparator_wrapper(left, right) -> out {
+        compare_comparator c;
+        c = left;
+        c = right;
+        out = c;
+}
+
+$expect(0, fancier_comparator_wrapper(0, 0).out, 0);
+$expect(0, fancier_comparator_wrapper(0, 1).out, 0);
+$expect(0, fancier_comparator_wrapper(1, 0).out, 0);
+$expect(0, fancier_comparator_wrapper(1, 1).out, 0);
+
+module fanciest_comparator_wrapper(left, right, back) -> out {
+        compare_comparator c;
+        c = left;
+        c = right;
+        c = back;
+        out = c;
+}
+
+$expect(0, fanciest_comparator_wrapper(0, 0, 0).out, 0);
+$expect(0, fanciest_comparator_wrapper(0, 0, 1).out, 1);
+$expect(0, fanciest_comparator_wrapper(0, 1, 0).out, 0);
+$expect(0, fanciest_comparator_wrapper(0, 1, 1).out, 1);
+$expect(0, fanciest_comparator_wrapper(1, 0, 0).out, 0);
+$expect(0, fanciest_comparator_wrapper(1, 0, 1).out, 1);
+$expect(0, fanciest_comparator_wrapper(1, 1, 0).out, 0);
+$expect(0, fanciest_comparator_wrapper(1, 1, 1).out, 1);

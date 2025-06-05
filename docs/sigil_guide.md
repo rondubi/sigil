@@ -66,8 +66,10 @@ These represent connecting one redstone component or module to another in sequen
 (this does mean that it doesn't model "back-flow" in redstone circuits;
 everything is assumed unidirectional).
 
-Because in Minecraft, redstone components effectively perform a logical union on their inputs,
+Because in Minecraft, torches and dusts effectively perform a logical union on their inputs,
 an assignment effectively adds to the union.
+
+A comparator must have at most three inputs, and they are added in the following order: left, right, back.
 
 ### System tasks
 
