@@ -75,42 +75,24 @@ module full_adder(l0, r0, c) -> o0, carry {
         carry = d;
 }
 
-$expect(0, full_adder(0, 0, 0).o0, 0);
-$expect(0, full_adder(0, 0, 1).o0, 1);
-$expect(0, full_adder(0, 1, 0).o0, 1);
-$expect(0, full_adder(0, 1, 1).o0, 0);
+module four_bit_adder(l0, l1, l2, l3, r0, r1, r2, r3) -> o0, o1, o2, o3, carry {
+        half_adder h0(l0, r0);
+        full_adder f1(l1, r1, h0.carry);
+        full_adder f2(l2, r2, f1.carry);
+        full_adder f3(l3, r3, f2.carry);
 
-$expect(0, full_adder(1, 0, 0).o0, 1);
-$expect(0, full_adder(1, 0, 1).o0, 0);
-$expect(0, full_adder(1, 1, 0).o0, 0);
-$expect(0, full_adder(1, 1, 1).o0, 1);
+        o0 = h0.bit;
+        o1 = f1.o0;
+        o2 = f2.o0;
+        o3 = f3.o0;
+        carry = f3.carry;
+}
 
-$expect(0, full_adder(0, 0, 0).carry, 0);
-$expect(0, full_adder(0, 0, 1).carry, 0);
-$expect(0, full_adder(0, 1, 0).carry, 0);
-$expect(0, full_adder(0, 1, 1).carry, 1);
+# Test that 15 + 13 = 28
 
-$expect(0, full_adder(1, 0, 0).carry, 0);
-$expect(0, full_adder(1, 0, 1).carry, 1);
-$expect(0, full_adder(1, 1, 0).carry, 1);
-$expect(0, full_adder(1, 1, 1).carry, 1);
+$expect(0, four_bit_adder(1, 1, 1, 1, 1, 0, 1, 1).o0,    0);
+$expect(0, four_bit_adder(1, 1, 1, 1, 1, 0, 1, 1).o1,    0);
+$expect(0, four_bit_adder(1, 1, 1, 1, 1, 0, 1, 1).o2,    1);
+$expect(0, four_bit_adder(1, 1, 1, 1, 1, 0, 1, 1).o3,    1);
+$expect(0, four_bit_adder(1, 1, 1, 1, 1, 0, 1, 1).carry, 1);
 
-$print(0, full_adder(0, 0, 0).o0, 0);
-$print(0, full_adder(0, 0, 1).o0, 0);
-$print(0, full_adder(0, 1, 0).o0, 0);
-$print(0, full_adder(0, 1, 1).o0, 0);
-
-$print(0, full_adder(1, 0, 0).o0, 0);
-$print(0, full_adder(1, 0, 1).o0, 0);
-$print(0, full_adder(1, 1, 0).o0, 0);
-$print(0, full_adder(1, 1, 1).o0, 0);
-
-$print(0, full_adder(0, 0, 0).carry, 0);
-$print(0, full_adder(0, 0, 1).carry, 0);
-$print(0, full_adder(0, 1, 0).carry, 0);
-$print(0, full_adder(0, 1, 1).carry, 0);
-
-$print(0, full_adder(1, 0, 0).carry, 0);
-$print(0, full_adder(1, 0, 1).carry, 0);
-$print(0, full_adder(1, 1, 0).carry, 0);
-$print(0, full_adder(1, 1, 1).carry, 0);
