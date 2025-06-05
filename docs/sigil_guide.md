@@ -126,7 +126,7 @@ Given this, we have the `torch_final_l` and  `torch_final_r` components,
 which are as follows
 ```math
 \text{torch_final_l} = \neg \biggr( \biggr[ \text{left} \bigcap \text{right} \biggr] \bigcup \neg \text{left} \biggr)
-
 = \neg \biggr[ \text{left} \bigcap \text{right} \biggr] \bigcap \text{left}
+= \biggr[ \neg \text{left} \bigcup \neg \text{right} \biggr] \bigcap \text{left}
 ```
 
