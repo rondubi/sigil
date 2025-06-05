@@ -1,0 +1,40 @@
+module subtract_wrapper(left) -> out {
+        subtract_comparator s;
+        s = left;
+
+        out = s;
+}
+
+$expect(0, subtract_wrapper(0), 0);
+$expect(0, subtract_wrapper(1), 0);
+
+module fancier_subtract_wrapper(left, right) -> out {
+        subtract_comparator s;
+        s = left;
+        s = right;
+
+        out = s;
+}
+
+$expect(0, fancier_subtract_wrapper(0, 0), 0);
+$expect(0, fancier_subtract_wrapper(0, 1), 0);
+$expect(0, fancier_subtract_wrapper(1, 0), 0);
+$expect(0, fancier_subtract_wrapper(1, 1), 0);
+
+module fanciest_subtract_wrapper(left, right, back) -> out {
+        subtract_comparator s;
+        s = left;
+        s = right;
+        s = back;
+
+        out = s;
+}
+
+$expect(0, fanciest_subtract_wrapper(0, 0, 0), 0);
+$expect(0, fanciest_subtract_wrapper(0, 0, 1), 1);
+$expect(0, fanciest_subtract_wrapper(0, 1, 0), 0);
+$expect(0, fanciest_subtract_wrapper(0, 1, 1), 0);
+$expect(0, fanciest_subtract_wrapper(1, 0, 0), 0);
+$expect(0, fanciest_subtract_wrapper(1, 0, 1), 0);
+$expect(0, fanciest_subtract_wrapper(1, 1, 0), 0);
+$expect(0, fanciest_subtract_wrapper(1, 1, 1), 0);
