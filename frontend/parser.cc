@@ -36,19 +36,22 @@ struct Match
 // poor man's Bison + Flex
 std::optional<Match> classify(const std::string & line)
 {
+        // NOTE (dub): major problem arose from identifiers in argument list
+        // being unable to include numbers This whole classification function is
+        // held together by snot and the hopes and dreams of small children
         static const std::regex module_start(
-                R"(module[ ]+([a-zA-Z_]+)[ ]*\(([a-zA-Z_]+([ ]*,[ ]*[a-zA-Z_]+)*)\)[ ]*->[ ]*([a-zA-Z_]+([ ]*,[ ]*[a-zA-Z_]+)*)[ ]*\{)",
+                R"(module[ ]+([a-zA-Z_]+)[ ]*\(([a-zA-Z][a-zA-Z_0-9]*([ ]*,[ ]*[a-zA-Z][a-zA-Z_0-9]*)*)\)[ ]*->[ ]*([a-zA-Z][a-zA-Z_0-9]*([ ]*,[ ]*[a-zA-Z][a-zA-Z_0-9]*)*)[ ]*\{)",
                 std::regex::extended);
 
         static const std::regex component_decl(
                 "^[[:space:]]*(dust|torch|repeater|clock|comparator)[[:space:]]"
                 "+([[:alnum:]_]+)[[:space:]]*;[[:space:]]*$",
                 std::regex::extended);
+
         static const std::regex module_inst(
-                "^[[:space:]]*(dust|torch|repeater|clock|comparator)[[:space:]]"
-                "+([[:alnum:]_]+)[[:space:]]*\\(([^)]*)\\)[[:space:]]*;[[:"
-                "space:]]*$",
+                R"(^[[:space:]]*([a-zA-Z_][a-zA-Z_0-9]*)[[:space:]]+([a-zA-Z_][a-zA-Z_0-9]*)[[:space:]]*\(([[:space:]]*[a-zA-Z_][a-zA-Z_0-9]*(\.[a-zA-Z_][a-zA-Z_0-9]*)?[[:space:]]*(,[[:space:]]*[a-zA-Z_][a-zA-Z_0-9]*(\.[a-zA-Z_][a-zA-Z_0-9]*)?[[:space:]]*)*)?\)[[:space:]]*;[[:space:]]*$)",
                 std::regex::extended);
+
         static const std::regex assignment(
                 "^[[:space:]]*([[:alnum:]_]+)[[:space:]]*=[[:space:]]*([[:"
                 "alnum:]_\\.]+)[[:space:]]*;[[:space:]]*$",
@@ -56,9 +59,8 @@ std::optional<Match> classify(const std::string & line)
         static const std::regex block_end(
                 "^[[:space:]]*\\}[[:space:]]*$", std::regex::extended);
         static const std::regex system_task(
-    R"(\$([a-zA-Z_][a-zA-Z_0-9]*)\([ ]*([0-9]+)[ ]*,[ ]*([a-zA-Z_][a-zA-Z_0-9]*)\(([0-9]+([ ]*,[ ]*[0-9]+)*)\)\.([a-zA-Z_][a-zA-Z_0-9]*)[ ]*,[ ]*([0-9]+)\);)",
-    std::regex::extended
-);
+                R"(\$([a-zA-Z_][a-zA-Z_0-9]*)\([ ]*([0-9]+)[ ]*,[ ]*([a-zA-Z_][a-zA-Z_0-9]*)\(([0-9]+([ ]*,[ ]*[0-9]+)*)\)\.([a-zA-Z_][a-zA-Z_0-9]*)[ ]*,[ ]*([0-9]+)\);)",
+                std::regex::extended);
 
 
         std::smatch m;
@@ -108,7 +110,8 @@ struct ModuleState
         std::string module_name;
         std::vector<std::string> named_inputs;
         std::vector<Component> components;
-        std::unordered_map<std::string, std::vector<std::string>> named_outputs_and_sources;
+        std::unordered_map<std::string, std::vector<std::string>>
+                named_outputs_and_sources;
 };
 
 ModuleState module_state;
@@ -176,26 +179,34 @@ std::vector<std::string> parse_list(const std::string & input)
         return result;
 }
 
-std::vector<int> split_to_ints(const std::string& input) {
-    std::vector<int> result;
-    std::stringstream ss(input);
-    std::string token;
+std::vector<int> split_to_ints(const std::string & input)
+{
+        std::vector<int> result;
+        std::stringstream ss(input);
+        std::string token;
 
-    while (std::getline(ss, token, ',')) {
-        // Trim whitespace
-        token.erase(token.begin(), std::find_if(token.begin(), token.end(), [](char c) {
-            return !std::isspace(c);
-        }));
-        token.erase(std::find_if(token.rbegin(), token.rend(), [](char c) {
-            return !std::isspace(c);
-        }).base(), token.end());
+        while (std::getline(ss, token, ','))
+        {
+                // Trim whitespace
+                token.erase(
+                        token.begin(),
+                        std::find_if(
+                                token.begin(),
+                                token.end(),
+                                [](char c) { return !std::isspace(c); }));
+                token.erase(
+                        std::find_if(
+                                token.rbegin(),
+                                token.rend(),
+                                [](char c) { return !std::isspace(c); })
+                                .base(),
+                        token.end());
 
-        if (!token.empty()) {
-            result.push_back(std::stoi(token));
+                if (!token.empty())
+                        result.push_back(std::stoi(token));
         }
-    }
 
-    return result;
+        return result;
 }
 
 std::unordered_map<std::string, std::vector<std::string>>
@@ -241,7 +252,11 @@ void process_module_instantiation(std::smatch s)
 {
         ASSERT_IN_MODULE;
 
-        assert(false && "FUCK");
+        module_state.components.push_back({
+                .name = s[2],
+                .type = s[1],
+                .prerequisites = parse_list(s[3]),
+        });
 }
 
 void process_assignment(std::smatch s)
@@ -269,11 +284,14 @@ void process_assignment(std::smatch s)
                         assert(false);
                 }
 
-                module_state.named_outputs_and_sources[s[1].str()].push_back(s[2].str());
+                module_state.named_outputs_and_sources[s[1].str()].push_back(
+                        s[2].str());
                 prs_printf(
                         "Return value %s has prerequisite %s\n",
                         s[1].str().c_str(),
-                        module_state.named_outputs_and_sources[s[1]].back().c_str());
+                        module_state.named_outputs_and_sources[s[1]]
+                                .back()
+                                .c_str());
         }
 }
 
@@ -291,18 +309,24 @@ void process_system_task(std::smatch s)
 {
         ASSERT_OUT_MODULE;
 
-        tasks.push_back((SysTask) {
-                                .task = get_task_type(s[1]),
-                                .timestamp = std::stoi(s[2]),
-                                .expect= std::stoi(s[7]), // will need to be used for prints for now
-                                .args = split_to_ints(s[4]),
-                                .module_name = s[3].str(),
-                                .field_name = s[6],
+        tasks.push_back((SysTask){
+                .task = get_task_type(s[1]),
+                .timestamp = std::stoi(s[2]),
+                .expect
+                = std::stoi(s[7]), // will need to be used for prints for now
+                .args = split_to_ints(s[4]),
+                .module_name = s[3].str(),
+                .field_name = s[6],
 
-                        });
-        prs_printf("Have task called %s at time %d with expect %d on module %s, field %s\n",
-                        s[1].str().c_str(), tasks.back().timestamp, tasks.back().expect,
-                        tasks.back().module_name.c_str(), tasks.back().field_name.c_str());
+        });
+        prs_printf(
+                "Have task called %s at time %d with expect %d on module %s, "
+                "field %s\n",
+                s[1].str().c_str(),
+                tasks.back().timestamp,
+                tasks.back().expect,
+                tasks.back().module_name.c_str(),
+                tasks.back().field_name.c_str());
 }
 
 void clear_state()
@@ -354,6 +378,41 @@ bool is_sigil_type(const std::string & s)
                 || s == "comparator<subtract>";
 }
 
+struct split_name
+{
+        std::string name;
+        std::optional<std::string> field;
+};
+
+split_name splitQualifiedName(const std::string & input)
+{
+        size_t dotPos = input.find('.');
+        if (dotPos == std::string::npos)
+        {
+                return {
+                        .name = input,
+                        .field = std::nullopt,
+                };
+        }
+        return {.name = input.substr(0, dotPos),
+                .field = input.substr(dotPos + 1)};
+}
+
+void emit_prereq_smart(const std::string & prereq)
+{
+        split_name split = splitQualifiedName(prereq);
+        if (!split.field)
+        {
+                std::cout << prereq;
+                return;
+        }
+
+        std::cout << "std::make_shared<sigil::QueryableFn>(";
+        std::cout << "[" << split.name << "](int timestamp) { return (*"
+                  << split.name;
+        std::cout << ")(timestamp)." << split.field.value() << "; })";
+}
+
 void emit_components()
 {
         for (const Component & c : module_state.components)
@@ -370,7 +429,7 @@ void emit_components()
                 {
                         if (comma)
                                 std::cout << ", ";
-                        std::cout << prereq;
+                        emit_prereq_smart(prereq);
                         comma = true;
                 }
                 if (c.type == "torch" || c.type == "dust")
@@ -382,9 +441,21 @@ void emit_components()
 void emit_return()
 {
         std::unordered_set<std::string> return_prereqs;
+        std::unordered_map<std::string, std::string> prereq_fields;
+
         for (const auto & [_, ret_p] : module_state.named_outputs_and_sources)
                 for (const std::string & s : ret_p)
-                        return_prereqs.insert(s);
+                {
+                        split_name split = splitQualifiedName(s);
+                        if (!split.field)
+                                return_prereqs.insert(s);
+                        else
+                        {
+                                return_prereqs.insert(split.name);
+                                prereq_fields[split.name] = split.field.value();
+                        }
+                }
+
         std::cout << "\treturn std::make_shared<module_"
                   << module_state.module_name << ">(\n"
                   << "\t\t[";
@@ -412,7 +483,11 @@ void emit_return()
                 {
                         if (write_or)
                                 std::cout << " || ";
-                        std::cout << "(*" << src << ")(timestamp)";
+
+                        split_name split = splitQualifiedName(src);
+                        std::cout << "(*" << split.name << ")(timestamp)";
+                        if (split.field)
+                                std::cout << "." << split.field.value();
                         write_or = true;
                 }
                 std::cout << ",\n";
@@ -456,10 +531,11 @@ void process_block_end()
 }
 
 int temp_name_idx = 0;
+
 void emit_task(const SysTask & task)
 {
         std::cout << "\tauto t" << temp_name_idx << " = make_"
-                << task.module_name << "(";
+                  << task.module_name << "(";
         bool comma = false;
         for (int arg : task.args)
         {
@@ -477,12 +553,14 @@ void emit_task(const SysTask & task)
         switch (task.task)
         {
                 case SysTask::Task::Print:
-                        std::cout << "\tstd::cout << (*t" << temp_name_idx << ")(" << task.timestamp << ")."
-                                << task.field_name << " << std::endl;;\n";
+                        std::cout << "\tstd::cout << (*t" << temp_name_idx
+                                  << ")(" << task.timestamp << ")."
+                                  << task.field_name << " << std::endl;;\n";
                         break;
                 case SysTask::Task::Assert:
-                        std::cout << "\tassert((*t" << temp_name_idx << ")(" << task.timestamp << ")." << task.field_name
-                                << " == " << task.expect << ");\n";
+                        std::cout << "\tassert((*t" << temp_name_idx << ")("
+                                  << task.timestamp << ")." << task.field_name
+                                  << " == " << task.expect << ");\n";
                         break;
         }
         ++temp_name_idx;
@@ -523,9 +601,9 @@ void process_line(const std::string & line)
                         process_component_decl(m);
                         return;
                 case LineKind::ModuleInst:
-                        std::cout << "Module inst: type=" << m[1]
-                                  << " name=" << m[2] << " args=" << m[3]
-                                  << "\n";
+                        // std::cout << "Module inst: type=" << m[1]
+                        //           << " name=" << m[2] << " args=" << m[3]
+                        //           << "\n";
                         process_module_instantiation(m);
                         return;
                 case LineKind::Assignment:
