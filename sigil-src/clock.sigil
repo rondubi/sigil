@@ -1,0 +1,10 @@
+module clock_wrapper(irrelevant) -> out {
+        clock<2, 1> c;
+        out = c;
+}
+
+$expect(0, clock_wrapper(0).out, 1);
+$expect(1, clock_wrapper(0).out, 0);
+$expect(2, clock_wrapper(0).out, 1);
+$expect(3, clock_wrapper(0).out, 0);
+

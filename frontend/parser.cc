@@ -371,7 +371,8 @@ void emit_signature()
 
 bool is_sigil_type(const std::string & s)
 {
-        // TODO (clock support)
+        if (s.starts_with("clock"))
+                return true;
         return s == "torch" || s == "dust" || s == "repeater<1>"
                 || s == "repeater<2>" || s == "repeater<3>"
                 || s == "repeater<4>" || s == "subtract_comparator"

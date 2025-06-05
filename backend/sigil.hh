@@ -33,6 +33,12 @@ make_compare_comparator(Queryable left, Queryable right, Queryable back);
 
 Queryable make_clock(int period, int pulse_duration);
 
+template <int period, int pulse_duration>
+Queryable make_clock()
+{
+        return make_clock(period, pulse_duration);
+}
+
 // Must be ordered
 Queryable make_pulse_set(const std::set<int> & pulse_times);
 
