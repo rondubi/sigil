@@ -101,3 +101,20 @@ So the defined circuit is the following:
 ```
 By DeMorgan's law, this is equivalent to a logical AND.
 
+## Example 1: a logical XOR gate
+
+A logical XOR gate cna be represented as demonstrated in `sigil-src/xor.sigil`.
+
+This is more complex than the AND gate but is still simple enough.
+
+As we've established before, a `torch` is a negation of a union.
+A `dust` is a simple union.
+
+So, skipping about halfway through the code,
+since we have `nand_inputs`, `torch_bottom_l`, and `torch_bottom_r` passed into torch `center`,
+we have
+
+```math
+\text{center} = \neg \biggr( \biggr[ \neg \text{left} \bigcup \text{right} \biggr] \bicup \neg \text{left} \bigcup \neg \text{right} \biggr)
+```
+
