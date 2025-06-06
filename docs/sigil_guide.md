@@ -26,8 +26,8 @@ Component instantiations look like one of the following.
 dust [identifier];
 torch [identifier];
 repeater<[ticks]> [identifier];
-comparator<subtract> [identifier];
-comparator<compare> [identifier];
+subtract_comparator [identifier];
+compare_comparator [identifier];
 clock<[period], [pulse duration]> identifier;
 ```
 
@@ -158,5 +158,13 @@ we know that the least significant bit is the XOR of the inputs, and that the ca
 
 ## Example 3: a full-adder
 
-Now that we have a half-adder, you can try it for yourself and combined half-adders to form a full adder.
+Now that we have a half-adder, you can try it for yourself and combine half-adders to form a full adder.
+With two adders and a union (which we get by a dust) we can make a full-adder that accepts a carry bit!
+Check out `sigil-src/full-adder.sigil`.
+
+## Example 4: a four-bit adder
+
+Now that we have full-adders, we can chain them together to actually get binary addition.
+This works for four bits but we could apply it to more if we wanted to!
+Take a look at `sigil-src/4-bit-adder.sigil`.
 
